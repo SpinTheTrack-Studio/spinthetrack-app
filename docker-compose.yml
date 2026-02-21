@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # --- BACKEND (FastAPI) ---
+  backend:
+    build: ./spinthetrack-backend
+    container_name: spinthetrack_backend
+    restart: always
+    environment:
+      - ARL=${ARL}
+      - BLOWFISH_SECRET=g4el58wc0zvf9na1
+    volumes:
+      - ./spinthetrack-backend/data:/app/data  # Persistance des fichiers game/data/.json
+    expose:
+      - "8000"
+    networks:
+      - default
+
+  # --- FRONTEND ---
+  frontend:
+    build: ./spinthetrack-frontend
+    container_name: spinthetrack_frontend
+    restart: always
+    expose:
+      - "80"
+    networks:
+      - default
+
+  # --- PROXY INTERNE (Nginx) ---
+  # Ce container fait le pont entre ton proxy global et tes services
+  nginx_spinthetrack:
+    image: nginx:alpine
+    container_name: spinthetrack_proxy_internal
+    restart: always
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      # Remplace par ton vrai nom de domaine
+      - VIRTUAL_HOST=spinthetrack.online
+      - LETSENCRYPT_HOST=spinthetrack.online
+      - VIRTUAL_PORT=80
+    networks:
+      - proxy-network  # Pour être vu par le proxy global
+      - default        # Pour parler au backend et frontend
+    depends_on:
+      - frontend
+      - backend
+
+networks:
+  proxy-network:
+    external: true  # Réseau partagé avec ton proxy global (nginx-proxy / acme-companion)
