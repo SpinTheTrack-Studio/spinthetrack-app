@@ -1,0 +1,6 @@
+[submodule "spinthetrack-frontend"]
+	path = spinthetrack-frontend
+	url = git@github.com:SpinTheTrack-Studio/spinthetrack-frontend.git
+[submodule "spinthetrack-backend"]
+	path = spinthetrack-backend
+	url = git@github.com:SpinTheTrack-Studio/spinthetrack-backend.git
